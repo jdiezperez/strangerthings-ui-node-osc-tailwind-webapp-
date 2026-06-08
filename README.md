@@ -1,6 +1,6 @@
 # Stranger Things OSC Controller
 
-A web-based interactive interface inspired by the aesthetics of the TV series "Stranger Things". This application provides a tactile-feeling control panel that communicates with external visual software (like TouchDesigner, Resolume, or any OSC-compatible software) via the OSC (Open Sound Control) protocol.
+A web-based interactive interface inspired by the aesthetics of the TV series "Stranger Things". This application provides a tactile-feeling control panel that communicates with external visual software (like TouchDesigner, Resolume, or any OSC-compatible software) via the OSC (Open Sound Control) protocol. To be used in a tablet device.
 
 ## Features
 
@@ -86,4 +86,4 @@ This project is for educational and entertainment purposes.
 
 UI
 
-<img src="image/ui.png" alt="UI" width="800">
+<img src="image/ui.png" alt="UI" width="400">
