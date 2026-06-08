@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Stranger Things</title>
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Configuración iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Stranger Things">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    
+    <style>
+        body {
+            background-color: #000;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+
+        /* Contenedor que mantiene la proporción de la imagen original (aprox 2:3) */
+        .device-container {
+            position: relative;
+            width: 100vw;      /* Siempre ocupa todo el ancho del dispositivo */
+            height: 100vh;     /* Siempre ocupa todo el alto del dispositivo */
+            background-image: url('/img/interface_off.jpg');
+            background-size: contain;    /* Aquí ocurre la magia */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: black;     /* Letterbox/pillarbox */
+        }
+
+        .device-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: black;  /* barras negras */
+            overflow: hidden;
+        }
+
+        .device-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .device-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            width: min(100vw, calc(100vh * (560/835)));
+            height: min(calc(100vw * (835/560)), 100vh);
+
+            pointer-events: none;
+        }
+
+        .knob-trigger,
+        .knob-trigger-panic1,
+        .knob-trigger-panic2 {
+            pointer-events: auto;
+        }
+
+        /* TEXTO PANTALLA: Estilos para que parezca integrado en el CRT */
+        .screen-overlay {
+            position: absolute;
+            top: 13%;      /* Coordenadas ajustadas a la imagen */
+            left: 14%;
+            width: 74%;
+            height: 23%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+
+        /* EFECTOS DE TEXTO NEÓN */
+        .glow-text {
+            font-size: clamp(2rem, 8vw, 5rem); /* Se ajusta al tamaño */
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            z-index: 20;
+            text-align: center;
+            line-height: 1;
+        }
+        .red-state { color: #ff3333; text-shadow: 0 0 10px #ff0000, 0 0 20px #8b0000; }
+        .green-state { color: #33ff33; text-shadow: 0 0 10px #00ff00, 0 0 20px #004400; }
+        .white-state { color: #ffffff; text-shadow: 0 0 10px #ffffff, 0 0 20px #8b8b8b; }
+
+        /* BOTÓN CENTRAL (KNOB) - ZONA INTERACTIVA */
+        .knob-trigger {
+            position: absolute;
+            top: 60.5%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%;   /* Tamaño del círculo según la imagen */
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            
+            /* Sombra suave para simular relieve al tocar */
+            transition: all 0.1s;
+        }
+        
+        /* Cuando el botón está "iluminado" o activo */
+        .knob-trigger.active-mode {
+            /* Un resplandor rojo sobre el metal */
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.6), inset 0 0 20px rgba(255, 50, 50, 0.4);
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 100, 100, 0.5);
+        }
+        .knob-trigger:active { transform: translate(-50%, -50%) scale(0.98); }
+
+        /* BOTONES DE PÁNICO */
+        .knob-trigger-panic1 {
+            position: absolute;
+            bottom: 4%;
+            left: 13%;
+            transform: translate(-50%, -50%);
+            width: 5%;   /* Tamaño del círculo según la imagen */
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .knob-trigger-panic2 {
+            position: absolute;
+            bottom: 4%;
+            left: 87.5%;
+            transform: translate(-50%, -50%);
+            width: 5%;   /* Tamaño del círculo según la imagen */
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* LUCES LED INFERIORES */
+        .led-overlay {
+            position: absolute;
+            width: 34%;
+            height: 3.5%;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+            mix-blend-mode: screen; /* Esto hace que el color se funda con la foto realista */
+            opacity: 0; /* Apagado por defecto */
+        }
+
+        /* Posiciones de los LEDs según la imagen */
+        #led-red-pos { bottom: 8.75%; left: 33%; background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+        #led-green-pos { bottom: 14.75%; left: 33%; background-color: #00ff00; box-shadow: 0 0 15px #00ff00; }
+
+        /* Clases de estado */
+        .led-on { opacity: .5 !important; }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor Principal: La imagen es el background -->
+    <div class="device-wrapper">
+        <img src="/img/interface_off.jpg" class="device-image" id="deviceImage">
+        <div class="device-overlay" id="deviceOverlay">
+        
+            <!-- 1. CAPA DE PANTALLA -->
+            <div class="screen-overlay">
+                <h1 id="main-text" class="glow-text green-state">UPSIDE<br>UP</h1>
+            </div>
+
+            <!-- 2. CAPA DEL BOTÓN (Invisible hasta que se activa) -->
+            <div id="reality-btn" class="knob-trigger"></div>
+
+            <div id="reality-btn-panic1" class="knob-trigger-panic1"></div>
+            <div id="reality-btn-panic2" class="knob-trigger-panic2"></div>
+
+            <!-- 3. CAPAS DE LUCES LED -->
+            <!-- Luz roja (Normal World) -->
+            <div id="led-red-pos" class="led-overlay"></div>
+            
+            <!-- Luz verde (Upside Up) -->
+            <div id="led-green-pos" class="led-overlay led-on"></div>
+
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('reality-btn');
+        const btnPanic1 = document.getElementById('reality-btn-panic1');
+        const btnPanic2 = document.getElementById('reality-btn-panic2');
+        const text = document.getElementById('main-text');
+        const ledRed = document.getElementById('led-red-pos');
+        const ledGreen = document.getElementById('led-green-pos');
+
+        let isShifted = false;
+        let panicCountDown = 3;
+
+        // Función para solicitar pantalla completa al navegador
+        function requestFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => {
+                    console.log("Fullscreen bloqueado o no soportado: ", e);
+                });
+            }
+        }
+
+        function toggleReality() {
+            isShifted = !isShifted;
+
+            // Solicitar Fullscreen si no estamos en él (útil para Android)
+            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+
+            if (!isShifted) {
+                // CAMBIO A VERDE (UPSIDE UP)
+                text.innerHTML = "UPSIDE<br>UP";
+                text.className = "glow-text green-state"; // Cambia estilo texto
+                
+                btn.classList.remove('active-mode');
+                
+                ledGreen.classList.remove('animate-pulse');
+                ledRed.classList.remove('animate-pulse');
+                ledRed.classList.remove('led-on'); // Apaga rojo
+                ledGreen.classList.add('led-on');  // Enciende verde
+
+	    		fetch('/enviar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify( { action: "/up" } )
+                });
+
+            } else {
+                // VUELTA A ROJO (NORMAL)
+                text.innerHTML = "UPSIDE<br>DOWN";
+                text.className = "glow-text red-state";
+                
+                btn.classList.add('active-mode'); // Ilumina el botón central
+                
+                ledGreen.classList.remove('animate-pulse');
+                ledRed.classList.remove('animate-pulse');
+                ledRed.classList.add('led-on');
+                ledGreen.classList.remove('led-on');
+
+	    		fetch('/enviar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify( { action: "/down" } )
+                });
+
+            }
+        }
+
+        function startPanic() {
+            panicCountDown = 2;
+            setTimeout( () => { panicCountDown = 3 }, 5000);
+        }
+
+        function continuePanic() {
+            if (panicCountDown != 3) {
+                panicCountDown--;
+            }
+            if (panicCountDown == 0) {
+                ledGreen.classList.remove('led-on');
+                ledRed.classList.remove('led-on');
+                ledGreen.classList.add('animate-pulse');
+                ledRed.classList.add('animate-pulse');
+                text.innerHTML = "PANIC<br>MODE";
+                text.className = "glow-text white-state";
+	    		fetch('/enviar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify( { action: "/panic" } )
+                });
+            }
+        }
+
+        btn.addEventListener('click', toggleReality);
+        btnPanic1.addEventListener('click', startPanic);
+        btnPanic2.addEventListener('click', continuePanic);
+
+    </script>
+</body>
+</html>

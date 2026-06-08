@@ -1,0 +1,16 @@
+{
+  "name": "Stranger Things",
+  "short_name": "StrangerThings",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://play-lh.googleusercontent.com/ipVcH3rmkdTnX6ic07e69Fy-HencwQtw8FW5mSeAuIj6Anx9BjKhltArQ33NIExDtcnn", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
