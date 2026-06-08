@@ -81,3 +81,9 @@ The application sends the following OSC messages to the configured `OSC_REMOTE_A
 ## License
 
 This project is for educational and entertainment purposes.
+
+## Screenshots
+
+UI
+
+<img src="image/ui.png" alt="UI" width="800">
